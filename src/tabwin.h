@@ -42,6 +42,14 @@ typedef enum
 }
 CYCLE_TABWIN_MODE;
 
+typedef enum
+{
+    STANDARD_SHOW_ON_WORKSPACE,
+    POINTER_SHOW_ON_WORKSPACE,
+    WINDOW_SHOW_ON_WORKSPACE,
+}
+CYCLE_TABWIN_SHOW_ON_WORKSPACE;
+
 struct _Tabwin
 {
     GList *tabwin_list;

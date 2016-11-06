@@ -940,6 +940,7 @@ tabwinCreate (GList **client_list, GList *selected, gboolean display_workspace)
     Tabwin *tabwin;
     TabwinWidget *win;
     int num_monitors, i;
+    GdkRectangle current_rect;
 
     g_return_val_if_fail (selected, NULL);
     g_return_val_if_fail (client_list, NULL);
@@ -956,14 +957,41 @@ tabwinCreate (GList **client_list, GList *selected, gboolean display_workspace)
     tabwin->tabwin_list = NULL;
     tabwin->icon_list = NULL;
 
+    if (c->screen_info->params->cycle_tabwin_show_on_workspace == POINTER_SHOW_ON_WORKSPACE)
+    {
+        gint x, y;
+        getMouseXY(screen_info, screen_info->xroot, &x, &y);
+        myScreenFindMonitorAtPoint(screen_info, x, y, &current_rect);
+    }
+    else if (c->screen_info->params->cycle_tabwin_show_on_workspace == WINDOW_SHOW_ON_WORKSPACE)
+    {
+        gint x, y;
+        Client *current_c = clientGetFocus();
+        x = current_c->x;
+        y = current_c->y;
+        myScreenFindMonitorAtPoint(screen_info, x, y, &current_rect);
+    }
+
     num_monitors = myScreenGetNumMonitors (screen_info);
     for (i = 0; i < num_monitors; i++)
     {
         gint monitor_index;
 
         monitor_index = myScreenGetMonitorIndex (screen_info, i);
-        win = tabwinCreateWidget (tabwin, screen_info, monitor_index);
-        tabwin->tabwin_list  = g_list_append (tabwin->tabwin_list, win);
+        if (c->screen_info->params->cycle_tabwin_show_on_workspace == STANDARD_SHOW_ON_WORKSPACE)
+        {
+            win = tabwinCreateWidget (tabwin, screen_info, monitor_index);
+            tabwin->tabwin_list  = g_list_append (tabwin->tabwin_list, win);
+        }
+        else
+        {
+            GdkRectangle monitor_rect;
+            gdk_screen_get_monitor_geometry(screen_info->gscr, monitor_index, &monitor_rect);
+            if (gdk_rectangle_intersect(&current_rect, &monitor_rect, NULL)) {
+                win = tabwinCreateWidget (tabwin, screen_info, monitor_index);
+                tabwin->tabwin_list = g_list_append (tabwin->tabwin_list, win);
+            }
+        }
     }
 
     return tabwin;
