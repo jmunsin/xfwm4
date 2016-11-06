@@ -723,6 +723,7 @@ loadSettings (ScreenInfo *screen_info)
         {"cycle_minimum", NULL, G_TYPE_BOOLEAN, TRUE},
         {"cycle_preview", NULL, G_TYPE_BOOLEAN, TRUE},
         {"cycle_tabwin_mode", NULL, G_TYPE_INT, FALSE},
+        {"cycle_tabwin_from_workspace", NULL, G_TYPE_INT, FALSE},
         {"cycle_workspaces", NULL, G_TYPE_BOOLEAN, TRUE},
         {"double_click_action", NULL, G_TYPE_STRING, TRUE},
         {"double_click_distance", NULL, G_TYPE_INT, TRUE},
@@ -822,6 +823,8 @@ loadSettings (ScreenInfo *screen_info)
         getBoolValue ("cycle_preview", rc);
     screen_info->params->cycle_tabwin_mode =
         CLAMP (getIntValue ("cycle_tabwin_mode", rc), 0, 1);
+    screen_info->params->cycle_tabwin_from_workspace =
+        CLAMP (getIntValue ("cycle_tabwin_from_workspace", rc), 0, 2);
     screen_info->params->cycle_workspaces =
         getBoolValue ("cycle_workspaces", rc);
     screen_info->params->focus_hint =
@@ -1245,6 +1248,10 @@ cb_xfwm4_channel_property_changed(XfconfChannel *channel, const gchar *property_
                 else if (!strcmp (name, "cycle_tabwin_mode"))
                 {
                     screen_info->params->cycle_tabwin_mode = CLAMP (g_value_get_int(value), 0, 1);
+                }
+                else if (!strcmp (name, "cycle_tabwin_from_workspace"))
+                {
+                    screen_info->params->cycle_tabwin_from_workspace = CLAMP (g_value_get_int(value), 0, 2);
                 }
                 else if ((!strcmp (name, "button_offset"))
                       || (!strcmp (name, "button_spacing"))

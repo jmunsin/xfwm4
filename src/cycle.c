@@ -95,6 +95,7 @@ clientCycleCreateList (Client *c)
     Client *c2;
     guint range, search_range,   i;
     GList *client_list;
+    GdkRectangle current_rect;
 
     g_return_val_if_fail (c, NULL);
     TRACE ("entering clientCycleCreateList");
@@ -102,6 +103,21 @@ clientCycleCreateList (Client *c)
     screen_info = c->screen_info;
     range = clientGetCycleRange (screen_info);
     client_list = NULL;
+
+    if (c->screen_info->params->cycle_tabwin_from_workspace == POINTER_FROM_WORKSPACE)
+    {
+        gint x, y;
+        getMouseXY(screen_info, screen_info->xroot, &x, &y);
+        myScreenFindMonitorAtPoint(screen_info, x, y, &current_rect);
+    }
+    else if (c->screen_info->params->cycle_tabwin_from_workspace == WINDOW_FROM_WORKSPACE)
+    {
+        gint x, y;
+        Client *current_c = clientGetFocus();
+        x = current_c->x;
+        y = current_c->y;
+        myScreenFindMonitorAtPoint(screen_info, x, y, &current_rect);
+    }
 
     for (c2 = c, i = 0; c && i < screen_info->client_count; i++, c2 = c2->next)
     {
@@ -158,7 +174,20 @@ clientCycleCreateList (Client *c)
         }
 
         TRACE ("clientCycleCreateList: adding %s", c2->name);
-        client_list = g_list_append (client_list, c2);
+        if (c->screen_info->params->cycle_tabwin_from_workspace == STANDARD_FROM_WORKSPACE)
+        {
+            client_list = g_list_append (client_list, c2);
+        }
+        else
+        {
+            gint x, y;
+            GdkRectangle rect;
+            x = c2->x;
+            y = c2->y;
+            myScreenFindMonitorAtPoint(screen_info, x, y, &rect);
+            if (gdk_rectangle_intersect(&current_rect, &rect, NULL))
+                client_list = g_list_append (client_list, c2);
+        }
     }
 
     return client_list;

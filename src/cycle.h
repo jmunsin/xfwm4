@@ -34,6 +34,14 @@
 #ifndef INC_CYCLE_H
 #define INC_CYCLE_H
 
+typedef enum
+{
+    STANDARD_FROM_WORKSPACE,
+    POINTER_FROM_WORKSPACE,
+    WINDOW_FROM_WORKSPACE,
+}
+CYCLE_TABWIN_FROM_WORKSPACE;
+
 void                     clientCycle                            (Client *,
                                                                  XKeyEvent *);
 gboolean                 clientSwitchWindow                     (void);
